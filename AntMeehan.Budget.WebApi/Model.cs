@@ -7,6 +7,7 @@ namespace AntMeehan.Budget.WebApi
     public class BudgetContext : DbContext
     {
         public DbSet<Budget> Budgets { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

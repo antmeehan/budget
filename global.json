@@ -1,0 +1,6 @@
+{
+    "projects": [
+        "AntMeehan.Budget.Tests",
+        "AntMeehan.Budget.WebApi"
+    ]
+}
