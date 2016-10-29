@@ -7,6 +7,7 @@ using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Net.Http.Headers;
 
 namespace AntMeehan.Budget.Tests
 {
@@ -14,6 +15,7 @@ namespace AntMeehan.Budget.Tests
     public class TestBase : IDisposable
     {
         private readonly Guid _databaseUniqueId;
+        private readonly Lazy<TestServer> _testServer;
 
         public TestBase()
         {
@@ -24,20 +26,32 @@ namespace AntMeehan.Budget.Tests
                 context.Database.EnsureCreated();
             }
 
-            Server = new TestServer(new WebHostBuilder()
+            _testServer = new Lazy<TestServer>(() => new TestServer(new WebHostBuilder()
                 .UseStartup<Startup>()
                 .ConfigureServices(collection =>
                 {
                     collection.AddScoped<BudgetContext>(_ => new TestBudgetContext(_databaseUniqueId));
-                }));
+                })));
         }
 
-        protected TestServer Server { get; }
+        protected TestServer Server { get { return _testServer.Value; } }
+
+        protected Action<IServiceCollection> AdditionalSerivceConfiguration = collection => { };
+
+        protected T SubsituteAndConfigure<T>() where T : class
+        {
+            var sub = NSubstitute.Substitute.For<T>();
+            AdditionalSerivceConfiguration += collection => { collection.AddScoped<T>(_ => sub); };
+
+            return sub;
+        }
 
         public async Task<HttpResponseMessage> PostAsync<T>(string requestUri, T content)
         {
             var jsonContent = Newtonsoft.Json.JsonConvert.SerializeObject(content);
-            return await Server.CreateClient().PostAsync(requestUri, new StringContent(jsonContent));
+            var requestContent = new StringContent(jsonContent);
+            requestContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+            return await Server.CreateClient().PostAsync(requestUri, requestContent);
         }
 
         void IDisposable.Dispose()

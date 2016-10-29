@@ -9,7 +9,9 @@
         "Shouldly": "2.8.2",
         "AntMeehan.Budget.WebApi": {
             "target": "project"
-        }
+        },
+        "Microsoft.Extensions.Configuration.UserSecrets": "1.0.0",
+        "NSubstitute": "2.0.0-rc"
     },
     "frameworks": {
         "netcoreapp1.0": {
@@ -30,5 +32,8 @@
     },
     "tooling": {
         "defaultNamespace": "AntMeehan.Budget.Tests"
+    },
+    "tools": {
+        "Microsoft.DotNet.Watcher.Tools": "1.0.0-preview2-final"
     }
 }

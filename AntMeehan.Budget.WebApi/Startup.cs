@@ -24,7 +24,7 @@ namespace AntMeehan.Budget.WebApi
             if (env.IsDevelopment())
             {
                 // For more details on using the user secret store see http://go.microsoft.com/fwlink/?LinkID=532709
-                builder.AddUserSecrets();
+                builder.AddUserSecrets("AntMeehan.Budget.WebApi-94d96be7-7e29-40a5-9b1d-accfdc7202cf");
             }
 
             Configuration = builder.Build();
@@ -42,6 +42,9 @@ namespace AntMeehan.Budget.WebApi
             services.AddMvc();
 
             services.AddSwaggerGen();
+
+            services.AddOptions();
+            services.Configure<OAuthConfig>(Configuration.GetSection("OAuthConfig"));
 
             var builder = new ContainerBuilder();
             builder.RegisterModule<AutofacModule>();

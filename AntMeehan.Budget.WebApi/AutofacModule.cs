@@ -1,6 +1,7 @@
 using Autofac;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
+using Microsoft.Extensions.Options;
 
 namespace AntMeehan.Budget.WebApi
 {
@@ -10,14 +11,20 @@ namespace AntMeehan.Budget.WebApi
         {
 
             builder.RegisterType<BudgetContext>().AsSelf();
-            builder.Register(context => new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer()
+            builder.Register(context =>
             {
-                ClientSecrets = new ClientSecrets()
+                var oauthConfig = context.Resolve<IOptions<OAuthConfig>>().Value;
+
+                return new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer()
                 {
-                    ClientId = Microsoft.Extensions.Configuration.["GoogleClientId"],
-                    ClientSecret = Config.OAuth.GoogleClientSecret,
-                }
-            })).As<GoogleAuthorizationCodeFlow>();
+
+                    ClientSecrets = new ClientSecrets()
+                    {
+                        ClientId = oauthConfig.GoogleClientId,
+                        ClientSecret = oauthConfig.GoogleClientSecret,
+                    }
+                });
+            }).As<IAuthorizationCodeFlow>();
         }
     }
 }
